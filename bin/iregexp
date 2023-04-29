@@ -1,0 +1,119 @@
+#!/usr/bin/env ruby
+require 'pp'
+require 'yaml'
+require 'treetop'
+require 'json'
+
+require_relative '../lib/iregexp'
+ 
+Encoding.default_external = Encoding::UTF_8
+require 'optparse'
+require 'ostruct'
+
+FUNCSIG_CHARS = {"l" => :logical, "n" => :nodes, "v" => :value}
+
+$options = OpenStruct.new
+begin
+  op = OptionParser.new do |opts|
+    opts.banner = "Usage: jpt.rb [options] file.jp"
+
+    opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+      $options.verbose = v
+    end
+    opts.on("-l", "--[no-]lines", "multi-line mode") do |v|
+      $options.lines = v
+    end
+    opts.on("-eREGEXP", "--e=REGEXP", "supply iregexp on command line") do |v|
+      $options.regexp = v
+    end
+    opts.on("-tFMT", "--to=FMT", [:basic, :neat, :json, :yaml, :iregexp, :ire, :pcre, :js, :example, :random], "Target format") do |v|
+      $options.target = v
+    end
+  end
+  op.parse!
+rescue Exception => e
+  warn e
+  exit 1
+end
+
+if !$options.regexp
+  if ARGV == []
+    puts op
+    exit 1
+  end
+  $options.regexp = ARGF.read
+else
+  if ARGV != []
+    warn "*** file names #{ARGV.join(", ")} ignored due to -e given"
+  end
+end
+
+input_file = $options.regexp
+
+if $options.lines
+  require_relative '../lib/writer/iregexp-writer.rb'
+  require "regexp-examples"
+
+  lines = input_file.lines(chomp: true)
+  col = lines.map(&:length).max
+  form = "%-#{col}s %s"
+  lines.each do |line|
+    re = line[1..-1]
+    next unless re
+    ok = line[0] =~ /\A[=*]\z/  # * = error in example generator
+    begin
+      ire = IREGEXP.from_iregexp(re)
+      result = ire.tree.inspect
+      puts form % [line, result]
+      fail "is marked as failing, but seems to be ok" unless ok
+      if line[0] == "*"
+        puts form % ["", "bug in regexp example generator:"]
+      end
+      puts form % ["", ire.to_regexp.
+                         examples(max_repeater_variance: 4, max_group_results: 20).
+                         map{ |s| JSON.dump(s)}.
+                         join(", ")]
+    rescue IREGEXP::ParseError => e
+      l = line
+      e.to_s.lines.each do |li|
+        puts form % [l, li]
+        l = ""
+      end
+      fail "is marked as ok, but seems to be failing" if ok
+    end
+  end
+else
+
+  ire = IREGEXP.from_iregexp(input_file)
+  result = ire.tree
+
+  case $options.target
+  when :basic, nil
+    pp result
+  when :neat, :json
+    require 'neatjson'
+    puts JSON.neat_generate(result, after_comma: 1, after_colon: 1)
+  when :yaml
+    puts result.to_yaml
+  when :iregexp, :ire
+    require_relative '../lib/writer/iregexp-writer.rb'
+    puts ire.to_s
+  when :pcre
+    require_relative '../lib/writer/iregexp-writer.rb'
+    puts ire.to_pcre
+  when :js
+    require_relative '../lib/writer/iregexp-writer.rb'
+    puts ire.to_js
+  when :example
+    require_relative '../lib/writer/iregexp-writer.rb'
+    require "regexp-examples"
+    puts ire.to_regexp.examples(max_repeater_variance: 4, max_group_results: 20)
+  when :random
+    require_relative '../lib/writer/iregexp-writer.rb'
+    require "regexp-examples"
+    puts ire.to_regexp.random_example(max_repeater_variance: 4)
+  else
+    warn ["Unknown target format: ", $options.target].inspect
+  end
+
+end

@@ -1,0 +1,140 @@
+i-regexp = branch *( "|" branch ) {
+  def ast
+    if elements[1].text_value == ''
+      elements[0].ast
+    else
+      ["alt", elements[0].ast, *elements[1].elements.map{|el| el.elements[1].ast}]
+    end
+  end
+}
+branch = *piece {
+  def ast
+    pieces = elements.map{|el| el.ast}
+    if pieces.size == 1
+      pieces[0]
+    else
+      ["seq", *pieces]
+    end
+  end
+}
+piece = atom [ quantifier ] {
+  def ast
+    a = atom.ast
+    if elements[1].text_value != ''
+      q = elements[1].ast
+      ["rep", *q, a]
+    else
+      a
+    end
+  end
+}
+quantifier = ( %x2A-2B ; '*'-'+'
+ / "?" ) {
+   def ast
+     {"*" => [0, false],
+      "+" => [1, false],
+      "?" => [0, 1]}[text_value]
+   end
+}/ ( "{" quantity "}" ) {
+   def ast
+     quantity.ast
+   end
+}
+quantity = QuantExact [ "," [ QuantExact ] ] {
+  def ast
+    l = elements[0].ast
+    r = if rp = elements[1].elements
+          if rp[1].text_value != ''
+            rp[1].ast
+          else
+            false
+          end
+        else
+          l
+        end
+    [l, r]
+  end
+}
+QuantExact = 1*%x30-39 {
+  def ast
+    Integer(text_value)
+  end
+}; '0'-'9'
+
+atom = NormalChar / charClass / ( "(" i-regexp ")" ) {
+  def ast
+    elements[1].ast
+  end
+}
+NormalChar = ( %x00-27 / %x2C-2D ; ','-'-'
+ / %x2F-3E ; '/'-'>'
+ / %x40-5A ; '@'-'Z'
+ / %x5E-7A ; '^'-'z'
+ / %x7E-10FFFF ) { #'
+   def ast
+     text_value
+   end
+}
+charClass = "." {
+  def ast
+    ["dot"]
+  end
+}/ SingleCharEsc / charClassEsc / charClassExpr
+SingleCharEsc = "\" ( %x28-2B ; '('-'+'
+ / %x2D-2E ; '-'-'.'
+ / "?" / %x5B-5E ; '['-'^'
+ / %s"n" / %s"r" / %s"t" / %x7B-7D ; '{'-'}'
+ ) {
+  def ast
+    ch = text_value[1]
+    {"n" => "\n", "r" => "\r", "t" => "\t"}[ch] || ch
+  end
+}
+charClassEsc = catEsc / complEsc
+charClassExpr = "[" [ "^" ] ( "-" / CCE1 ) *CCE1 [ "-" ] "]" {
+  def ast
+    ret = ["pos"]
+    ret = ["neg"] if elements[1].text_value != ''
+    c1 = elements[2].text_value
+    c1 = elements[2].ast if c1 != "-"
+    ret << c1                   # XXX check for "^"!
+    elements[3].elements.each do |el|
+      ret << el.ast
+    end
+    ret << "-" if elements[4].text_value == "-"
+    ret
+  end
+}
+CCE1 = ( CCchar [ "-" CCchar ] ){
+  def ast
+    l = elements[0].ast
+    if elements[1].text_value != ''
+      r = elements[1].elements[1].ast
+      ["-", l, r]
+    else
+      l
+    end
+  end
+} / charClassEsc
+CCchar = ( %x00-2C / %x2E-5A ; '.'-'Z'
+ / %x5E-10FFFF ){
+  def ast
+    text_value
+  end
+} / SingleCharEsc
+catEsc = %s"\p{" charProp "}"{ def ast; ["p", charProp.text_value] end }
+complEsc = %s"\P{" charProp "}"{ def ast; ["P", charProp.text_value] end }
+charProp = IsCategory
+IsCategory = Letters / Marks / Numbers / Punctuation / Separators /
+    Symbols / Others
+Letters = %s"L" [ ( %x6C-6D ; 'l'-'m'
+ / %s"o" / %x74-75 ; 't'-'u'
+ ) ]
+Marks = %s"M" [ ( %s"c" / %s"e" / %s"n" ) ]
+Numbers = %s"N" [ ( %s"d" / %s"l" / %s"o" ) ]
+Punctuation = %s"P" [ ( %x63-66 ; 'c'-'f'
+ / %s"i" / %s"o" / %s"s" ) ]
+Separators = %s"Z" [ ( %s"l" / %s"p" / %s"s" ) ]
+Symbols = %s"S" [ ( %s"c" / %s"k" / %s"m" / %s"o" ) ]
+Others = %s"C" [ ( %s"c" / %s"f" / %x6E-6F ; 'n'-'o'
+ ) ]
