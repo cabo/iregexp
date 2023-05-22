@@ -28,22 +28,17 @@ piece = atom [ quantifier ] {
     end
   end
 }
-quantifier = ( %x2A-2B ; '*'-'+'
- / "?" ) {
+quantifier = ( "*" / "+" / "?" ) {
    def ast
      {"*" => [0, false],
       "+" => [1, false],
       "?" => [0, 1]}[text_value]
    end
-}/ ( "{" quantity "}" ) {
-   def ast
-     quantity.ast
-   end
-}
-quantity = QuantExact [ "," [ QuantExact ] ] {
+}/ range-quantifier
+range-quantifier = "{" QuantExact [ "," [ QuantExact ] ] "}" {
   def ast
-    l = elements[0].ast
-    r = if rp = elements[1].elements
+    l = elements[1].ast
+    r = if rp = elements[2].elements
           if rp[1].text_value != ''
             rp[1].ast
           else
@@ -66,8 +61,7 @@ atom = NormalChar / charClass / ( "(" i-regexp ")" ) {
     elements[1].ast
   end
 }
-NormalChar = ( %x00-27 / %x2C-2D ; ','-'-'
- / %x2F-3E ; '/'-'>'
+NormalChar = ( %x00-27 / "," / "-" / %x2F-3E ; '/'-'>'
  / %x40-5A ; '@'-'Z'
  / %x5E-7A ; '^'-'z'
  / %x7E-10FFFF ) { #'
@@ -81,8 +75,7 @@ charClass = "." {
   end
 }/ SingleCharEsc / charClassEsc / charClassExpr
 SingleCharEsc = "\" ( %x28-2B ; '('-'+'
- / %x2D-2E ; '-'-'.'
- / "?" / %x5B-5E ; '['-'^'
+ / "-" / "." / "?" / %x5B-5E ; '['-'^'
  / %s"n" / %s"r" / %s"t" / %x7B-7D ; '{'-'}'
  ) {
   def ast
@@ -127,14 +120,11 @@ complEsc = %s"\P{" charProp "}"{ def ast; ["P", charProp.text_value] end }
 charProp = IsCategory
 IsCategory = Letters / Marks / Numbers / Punctuation / Separators /
     Symbols / Others
-Letters = %s"L" [ ( %x6C-6D ; 'l'-'m'
- / %s"o" / %x74-75 ; 't'-'u'
- ) ]
+Letters = %s"L" [ ( %s"l" / %s"m" / %s"o" / %s"t" / %s"u" ) ]
 Marks = %s"M" [ ( %s"c" / %s"e" / %s"n" ) ]
 Numbers = %s"N" [ ( %s"d" / %s"l" / %s"o" ) ]
 Punctuation = %s"P" [ ( %x63-66 ; 'c'-'f'
  / %s"i" / %s"o" / %s"s" ) ]
 Separators = %s"Z" [ ( %s"l" / %s"p" / %s"s" ) ]
 Symbols = %s"S" [ ( %s"c" / %s"k" / %s"m" / %s"o" ) ]
-Others = %s"C" [ ( %s"c" / %s"f" / %x6E-6F ; 'n'-'o'
- ) ]
+Others = %s"C" [ ( %s"c" / %s"f" / %s"n" / %s"o" ) ]

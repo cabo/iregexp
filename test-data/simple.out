@@ -6,22 +6,22 @@
                   "a"
 =🤔                "🤔"
                   "🤔"
--\                Expected one of [\(-\+], [\--\.], "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 2 (byte 2):
+-\                Expected one of [\(-\+], "-", ".", "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 2 (byte 2):
                   \
                   ~^
--\v               Expected one of [\(-\+], [\--\.], "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 2 (byte 2):
+-\v               Expected one of [\(-\+], "-", ".", "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 2 (byte 2):
                   \v
                   ~^
--\\\              Expected one of [\(-\+], [\--\.], "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 4 (byte 4):
+-\\\              Expected one of [\(-\+], "-", ".", "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 4 (byte 4):
                   \\\
                   ~~~^
--\\\v             Expected one of [\(-\+], [\--\.], "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 4 (byte 4):
+-\\\v             Expected one of [\(-\+], "-", ".", "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 4 (byte 4):
                   \\\v
                   ~~~^
--\\\z             Expected one of [\(-\+], [\--\.], "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 4 (byte 4):
+-\\\z             Expected one of [\(-\+], "-", ".", "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 4 (byte 4):
                   \\\z
                   ~~~^
--\ca              Expected one of [\(-\+], [\--\.], "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 2 (byte 2):
+-\ca              Expected one of [\(-\+], "-", ".", "?", [\[-\^], "n", "r", "t", [\{-\}] at line 1, column 2 (byte 2):
                   \ca
                   ~^
 =\(\)\*\+\.\?\[\\ ["seq", "(", ")", "*", "+", ".", "?", "[", "\\"]
@@ -32,7 +32,7 @@
                   "", "a", "aa", "aaa", "aaaa"
 =🤔*               ["rep", 0, false, "🤔"]
                   "", "🤔", "🤔🤔", "🤔🤔🤔", "🤔🤔🤔🤔"
--a**              Expected one of [\u0000-'], [,-\-], [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|" at line 1, column 3 (byte 3):
+-a**              Expected one of [\u0000-'], ",", "-", [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|" at line 1, column 3 (byte 3):
                   a**
                   ~~^
 =a|b              ["alt", "a", "b"]
@@ -57,18 +57,18 @@
                   "aa", "bbbbbbb", "bbbbbbbb", "bbbbbbbbb"
 =(aa)             ["seq", "a", "a"]
                   "aa"
--aa)              Expected one of [\*-\+], "?", "{", [\u0000-'], [,-\-], [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|" at line 1, column 3 (byte 3):
+-aa)              Expected one of "*", "+", "?", "{", [\u0000-'], ",", "-", [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|" at line 1, column 3 (byte 3):
                   aa)
                   ~~^
--(aa              Expected one of [\*-\+], "?", "{", [\u0000-'], [,-\-], [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|", ")" at line 1, column 4 (byte 4):
+-(aa              Expected one of "*", "+", "?", "{", [\u0000-'], ",", "-", [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|", ")" at line 1, column 4 (byte 4):
                   (aa
                   ~~~^
 =aa(bb|cc)dd      ["seq", "a", "a", ["alt", ["seq", "b", "b"], ["seq", "c", "c"]], "d", "d"]
                   "aabbdd", "aaccdd"
--aabb|cc)dd       Expected one of [\*-\+], "?", "{", [\u0000-'], [,-\-], [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|" at line 1, column 8 (byte 8):
+-aabb|cc)dd       Expected one of "*", "+", "?", "{", [\u0000-'], ",", "-", [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|" at line 1, column 8 (byte 8):
                   aabb|cc)dd
                   ~~~~~~~^
--aa(bb|ccdd       Expected one of [\*-\+], "?", "{", [\u0000-'], [,-\-], [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|", ")" at line 1, column 11 (byte 11):
+-aa(bb|ccdd       Expected one of "*", "+", "?", "{", [\u0000-'], ",", "-", [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|", ")" at line 1, column 11 (byte 11):
                   aa(bb|ccdd
                   ~~~~~~~~~~^
 =[abc]            ["pos", "a", "b", "c"]
@@ -76,7 +76,7 @@
 -[a               Expected one of "-", [\u0000-,], [\.-Z], [\^-􏿿], "\\", "\\p{", "\\P{", "]" at line 1, column 3 (byte 3):
                   [a
                   ~~^
--a]               Expected one of [\*-\+], "?", "{", [\u0000-'], [,-\-], [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|" at line 1, column 2 (byte 2):
+-a]               Expected one of "*", "+", "?", "{", [\u0000-'], ",", "-", [/->], [@-Z], [\^-z], [~-􏿿], ".", "\\", "\\p{", "\\P{", "[", "(", "|" at line 1, column 2 (byte 2):
                   a]
                   ~^
 =[a🤔b]            ["pos", "a", "🤔", "b"]
