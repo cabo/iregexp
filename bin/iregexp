@@ -15,7 +15,7 @@ FUNCSIG_CHARS = {"l" => :logical, "n" => :nodes, "v" => :value}
 $options = OpenStruct.new
 begin
   op = OptionParser.new do |opts|
-    opts.banner = "Usage: jpt.rb [options] file.jp"
+    opts.banner = "Usage: iregexp [options] file | -e expr"
 
     opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
       $options.verbose = v

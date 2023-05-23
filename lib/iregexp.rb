@@ -24,7 +24,7 @@ class IREGEXP
   def self.from_iregexp(s)
     ast = @@parser.parse s
     if !ast
-      fail ParseError.new(self.reason(@@parser, s))
+      fail ParseError.new("\n" << self.reason(@@parser, s))
     end
     ret = IREGEXP.new(ast)
 
