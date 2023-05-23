@@ -12,9 +12,9 @@ Convert to PCRE form:
 
 ```
 $ iregexp  -tpcre -e "o.o|aa"
-\A(?:o.o|aa)z
+\A(?:o.o|aa)\z
 $ iregexp  -tpcre -e "(o.o|aa)"
-\A(?:o.o|aa)z
+\A(?:o.o|aa)\z
 ```
 
 Convert to ECMAScript (JavaScript) form:
@@ -62,7 +62,7 @@ $ iregexp -l $(VISUAL=echo gem open iregexp)/test-data/simple.irl
 ...
 ```
 
-The test in the test set starts with "=" (test should be OK), "-"
+The lines in the test set start with "=" (test should be OK), "-"
 (test should fail), and "*" (test should be OK, but regexp example
 generator cannot handle this test ).
 The JSON-like expression to the right of the example is a path tree.
