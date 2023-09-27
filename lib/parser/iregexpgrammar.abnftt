@@ -64,7 +64,8 @@ atom = NormalChar / charClass / ( "(" i-regexp ")" ) {
 NormalChar = ( %x00-27 / "," / "-" / %x2F-3E ; '/'-'>'
  / %x40-5A ; '@'-'Z'
  / %x5E-7A ; '^'-'z'
- / %x7E-10FFFF ) { #'
+ / %x7E-D7FF ; skip surrogate code points
+ / %xE000-10FFFF ) { #'
    def ast
      text_value
    end
@@ -110,7 +111,8 @@ CCE1 = ( CCchar [ "-" CCchar ] ){
   end
 } / charClassEsc
 CCchar = ( %x00-2C / %x2E-5A ; '.'-'Z'
- / %x5E-10FFFF ){
+ / %x5E-D7FF ; skip surrogate code points
+ / %xE000-10FFFF ){
   def ast
     text_value
   end

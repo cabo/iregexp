@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "iregexp"
-  s.version = "0.0.3"
+  s.version = "0.1.0"
   s.summary = "I-Regexp Tools"
   s.description = %q{iregexp implements converters and miscellaneous tools for I-Regexp}
   s.author = "Carsten Bormann"

@@ -9,7 +9,8 @@ atom = NormalChar / charClass / ( "(" i-regexp ")" )
 NormalChar = ( %x00-27 / "," / "-" / %x2F-3E ; '/'-'>'
  / %x40-5A ; '@'-'Z'
  / %x5E-7A ; '^'-'z'
- / %x7E-10FFFF )
+ / %x7E-D7FF ; skip surrogate code points
+ / %xE000-10FFFF )
 charClass = "." / SingleCharEsc / charClassEsc / charClassExpr
 SingleCharEsc = "\" ( %x28-2B ; '('-'+'
  / "-" / "." / "?" / %x5B-5E ; '['-'^'
@@ -19,7 +20,8 @@ charClassEsc = catEsc / complEsc
 charClassExpr = "[" [ "^" ] ( "-" / CCE1 ) *CCE1 [ "-" ] "]"
 CCE1 = ( CCchar [ "-" CCchar ] ) / charClassEsc
 CCchar = ( %x00-2C / %x2E-5A ; '.'-'Z'
- / %x5E-10FFFF ) / SingleCharEsc
+ / %x5E-D7FF ; skip surrogate code points
+ / %xE000-10FFFF ) / SingleCharEsc
 catEsc = %s"\p{" charProp "}"
 complEsc = %s"\P{" charProp "}"
 charProp = IsCategory
